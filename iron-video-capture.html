@@ -10,9 +10,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
+An element extending the native video element, make it easy to capture a video frame. 
+Usefull for a user to choose a video's image preview.
+For now, it just capture the current frame.
 
-@group Seed Elements
-@element iron-input-file
+  ```html
+  <template is="dom-bind" id="scope">
+
+    <style>
+      video {
+        width: 420px;
+        height: 315px;
+      }
+      img {
+        width: 200px;
+        height: auto;
+      }
+    </style>
+
+    <video is="iron-video-capture" id="video"
+      controls loop src="video/video.mp4"
+      capture-url="{{captureUrl}}" capture-width="200">
+    </video>
+    <img src="[[captureUrl]]">
+    <button on-tap="capture">Prendre une capture</button>
+      
+  </template>
+
+    <script>
+      var scope = document.getElementById('scope');
+      scope.capture = function() {
+        this.$.video.capture();
+      }
+    </script>
+
+  ```
+
+## Warning: provide the video from your domaine
+
+Internally it use a canvas element, due to CORS, the video can not come from 
+an external domaine, otherwise, you'll receive a "Uncaught SecurityError: 
+Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may 
+not be exported.". Tell me if you find a solution about that !
+
+@group Iron Elements
+@element iron-video-capture
 @demo demo/index.html
 @hero hero.svg
 -->
@@ -26,19 +68,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     extends: 'video',
 
     properties: {
-      captureSrc : {
+      /**
+       * The url of the last capture.
+       */
+      captureUrl: {
         type: String,
         value: '',
         notify: true
       },
+      /**
+       * The width of the capture. Height is calculated proportionally.
+       */
       captureWidth:  {
         type: Number,
         value: 0
       },
+      /**
+       * The native video's src attribute.
+       */
       src: {
         type: String,
         value: ''
       },
+      /**
+       * The canvas used to extract a video frame.
+       */
       _canvas: {
         type: Object,
         value : function() {
@@ -46,17 +100,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
     },
+    /**
+     * Take a capture of the current video's frame and expose it as data URL (type png) within captureUrl attribute.
+     */
     capture: function() {
       // if a video is present
       if (this.videoWidth) {
         // to call in observer on this.captureWidth & native video.videoWidth var
         this._ensureResize();
         this._canvas.getContext('2d').drawImage(this, 0, 0);
-        this.captureSrc = this._canvas.toDataURL();
+        this.captureUrl = this._canvas.toDataURL();
       }
     },
+    /**
+     *  Call this method when you've finished using capture's Url, in order 
+     *  to let the browser know it doesn't need to keep the reference to the 
+     *  file any longer.
+     */
     revokeCapture: function() {
-      URL.revokeObjectURL(this.captureSrc);
+      URL.revokeObjectURL(this.captureUrl);
     },
     _ensureResize: function() {
       if (this._canvas.width != this.captureWidth) {
@@ -66,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this._canvas.height = this.videoHeight * scaleFactor;
         this._canvas.getContext('2d').scale(scaleFactor, scaleFactor);
         this.revokeCapture();
-        this.captureSrc = this._canvas.toDataURL();
+        this.captureUrl = this._canvas.toDataURL();
       }
     }
 

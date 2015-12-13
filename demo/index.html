@@ -33,9 +33,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <video is="iron-video-capture" id="video"
         controls loop src="video/video.mp4"
-        capture-src="{{captureSrc}}" capture-width="200">
+        capture-url="{{captureUrl}}" capture-width="200">
       </video>
-      <img src="[[captureSrc]]">
+      <img src="[[captureUrl]]">
       <button on-tap="capture">Prendre une capture</button>
       
     </template>
