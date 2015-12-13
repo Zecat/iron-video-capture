@@ -47,10 +47,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
     capture: function() {
-      // to call in observer on this.captureWidth & native video.videoWidth var
-      this._ensureResize();
-      this._canvas.getContext('2d').drawImage(this, 0, 0);
-      this.captureSrc = this._canvas.toDataURL();
+      // if a video is present
+      if (this.videoWidth) {
+        // to call in observer on this.captureWidth & native video.videoWidth var
+        this._ensureResize();
+        this._canvas.getContext('2d').drawImage(this, 0, 0);
+        this.captureSrc = this._canvas.toDataURL();
+      }
     },
     revokeCapture: function() {
       URL.revokeObjectURL(this.captureSrc);
