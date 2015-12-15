@@ -8,7 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="../polymer/polymer.html">
-
+<script src="../blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
 <!--
 An element extending the native video element, make it easy to capture a video frame. 
 Usefull for a user to choose a video's image preview.
@@ -69,7 +69,17 @@ not be exported.". Tell me if you find a solution about that !
 
     properties: {
       /**
-       * The url of the last capture.
+       * The capture exposed as Blob.
+       */
+      captureFile: {
+        type: Object,
+        value: function() {
+          return {};
+        },
+        notify: true
+      },
+      /**
+       * The capture exposed as data URL.
        */
       captureUrl: {
         type: String,
@@ -91,6 +101,22 @@ not be exported.". Tell me if you find a solution about that !
         value: ''
       },
       /**
+       * Set to true to improve performance if you don't intend to use the 
+       * capture-url propertie.
+       */
+      noCaptureUrl: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Set to true to improve performance if you don't intend to use the 
+       * capture-file propertie.
+       */
+      noCaptureFile: {
+        type: Boolean,
+        value: false
+      },
+      /**
        * The canvas used to extract a video frame.
        */
       _canvas: {
@@ -109,15 +135,22 @@ not be exported.". Tell me if you find a solution about that !
         // to call in observer on this.captureWidth & native video.videoWidth var
         this._ensureResize();
         this._canvas.getContext('2d').drawImage(this, 0, 0);
-        this.captureUrl = this._canvas.toDataURL();
+        if (!this.noCaptureUrl) {
+          this.captureUrl = this._canvas.toDataURL();
+        }
+        if(!this.noCaptureFile) {
+          this._canvas.toBlob(function(blob) {
+            this.captureFile = blob;
+          }.bind(this));
+        }
       }
     },
     /**
-     *  Call this method when you've finished using capture's Url, in order 
-     *  to let the browser know it doesn't need to keep the reference to the 
-     *  file any longer.
+     *  Call this method when you've finished using captureUrl property, in 
+     *  order to let the browser know it doesn't need to keep the reference 
+     *  to the file any longer.
      */
-    revokeCapture: function() {
+    revokeCaptureUrl: function() {
       URL.revokeObjectURL(this.captureUrl);
     },
     _ensureResize: function() {
@@ -127,7 +160,7 @@ not be exported.". Tell me if you find a solution about that !
         this._canvas.width = this.captureWidth;
         this._canvas.height = this.videoHeight * scaleFactor;
         this._canvas.getContext('2d').scale(scaleFactor, scaleFactor);
-        this.revokeCapture();
+        this.revokeCaptureUrl();
         this.captureUrl = this._canvas.toDataURL();
       }
     }
