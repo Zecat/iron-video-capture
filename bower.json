@@ -19,10 +19,11 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
-    "blueimp-canvas-to-blob": "~2.2.2"
+    "blueimp-canvas-to-blob": "^3.6.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
-    "web-component-tester": "^3.4.0"
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   }
 }
