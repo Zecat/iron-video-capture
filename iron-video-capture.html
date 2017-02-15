@@ -134,7 +134,8 @@ not be exported.". Tell me if you find a solution about that !
       if (this.videoWidth) {
         // to call in observer on this.captureWidth & native video.videoWidth var
         this._ensureResize();
-        this._canvas.getContext('2d').drawImage(this, 0, 0);
+        var context = this._canvas.getContext('2d');
+        context.drawImage(this, 0, 0);
         if (!this.noCaptureUrl) {
           this.captureUrl = this._canvas.toDataURL();
         }
@@ -143,6 +144,8 @@ not be exported.". Tell me if you find a solution about that !
             this.captureFile = blob;
           }.bind(this));
         }
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, this._canvas.width, this._canvas.height);
       }
     },
     /**
@@ -154,14 +157,17 @@ not be exported.". Tell me if you find a solution about that !
       URL.revokeObjectURL(this.captureUrl);
     },
     _ensureResize: function() {
-      if (this._canvas.width != this.captureWidth) {
-        this._canvas.getContext('2d').resetTransform();
+      if (this.videoWidth > this.captureWidth) {
+        var context = this._canvas.getContext('2d');
         var scaleFactor = this.captureWidth / this.videoWidth;
         this._canvas.width = this.captureWidth;
         this._canvas.height = this.videoHeight * scaleFactor;
-        this._canvas.getContext('2d').scale(scaleFactor, scaleFactor);
+        context.scale(scaleFactor, scaleFactor);
         this.revokeCaptureUrl();
         this.captureUrl = this._canvas.toDataURL();
+      } else {
+        this._canvas.width = this.videoWidth;
+        this._canvas.height = this.videoHeight;
       }
     }
 
