@@ -142,6 +142,7 @@ not be exported.". Tell me if you find a solution about that !
         if(!this.noCaptureFile) {
           this._canvas.toBlob(function(blob) {
             this.captureFile = blob;
+            this.fire('iron-video-capture-file', blob);
           }.bind(this));
         }
         context.setTransform(1, 0, 0, 1, 0, 0);
