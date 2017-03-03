@@ -137,13 +137,13 @@ not be exported.". Tell me if you find a solution about that !
         var context = this._canvas.getContext('2d');
         context.drawImage(this, 0, 0);
         if (!this.noCaptureUrl) {
-          this.captureUrl = this._canvas.toDataURL();
+          this.captureUrl = this._canvas.toDataURL('image/jpeg');
         }
         if(!this.noCaptureFile) {
           this._canvas.toBlob(function(blob) {
             this.captureFile = blob;
             this.fire('iron-video-capture-file', blob);
-          }.bind(this));
+          }.bind(this), 'image/jpeg');
         }
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, this._canvas.width, this._canvas.height);
